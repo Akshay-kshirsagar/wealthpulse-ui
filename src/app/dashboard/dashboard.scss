@@ -1,0 +1,45 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.dashboard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: min(100% - 2rem, 72rem);
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+p {
+  margin: 0 0 0.5rem;
+  color: #0f766e;
+  font-weight: 800;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  letter-spacing: 0;
+}
+
+button {
+  min-height: 2.75rem;
+  border: 0;
+  border-radius: 8px;
+  background: #0f766e;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 0 1rem;
+}
+
+button:focus-visible {
+  outline: 3px solid rgba(15, 118, 110, 0.36);
+  outline-offset: 3px;
+}
