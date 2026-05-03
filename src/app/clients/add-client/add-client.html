@@ -1,0 +1,39 @@
+<main class="module-shell">
+  <app-page-header title="Add Client" eyebrow="Client Management">
+    <a class="button secondary" routerLink="/clients">Back</a>
+  </app-page-header>
+
+  <form class="form-panel form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <label for="name">Name</label>
+      <input id="name" formControlName="name" />
+    </div>
+    <div class="field">
+      <label for="pan">PAN</label>
+      <input id="pan" formControlName="pan" />
+    </div>
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" type="email" formControlName="email" />
+    </div>
+    <div class="field">
+      <label for="mobile">Mobile</label>
+      <input id="mobile" formControlName="mobile" />
+    </div>
+    <div class="field">
+      <label for="riskProfile">Risk Profile</label>
+      <select id="riskProfile" formControlName="riskProfile">
+        <option>Low</option>
+        <option>Moderate</option>
+        <option>High</option>
+      </select>
+    </div>
+    <div class="field full">
+      <label for="address">Address</label>
+      <textarea id="address" rows="4" formControlName="address"></textarea>
+    </div>
+    <div class="field full">
+      <button type="submit">Save Client</button>
+    </div>
+  </form>
+</main>

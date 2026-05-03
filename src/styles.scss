@@ -1,1 +1,380 @@
-/* You can add global styles to this file, and also import other style files */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #edf3f4;
+  color: #0f172a;
+  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.module-shell {
+  min-height: 100dvh;
+  padding: 1.25rem;
+}
+
+.app-nav {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid #d7e2e4;
+  background: #ffffff;
+  padding: 0.85rem 1.25rem;
+}
+
+.app-brand,
+.app-nav nav,
+.profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.app-brand {
+  color: #0f172a;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.app-brand span {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.app-nav nav {
+  flex-wrap: wrap;
+}
+
+.app-nav nav a {
+  border-radius: 8px;
+  color: #475569;
+  font-weight: 800;
+  padding: 0.55rem 0.7rem;
+  text-decoration: none;
+}
+
+.app-nav nav a.active,
+.app-nav nav a:hover {
+  background: #e7f6f3;
+  color: #0f766e;
+}
+
+.profile-summary div {
+  display: grid;
+  gap: 0.1rem;
+  text-align: right;
+}
+
+.profile-summary span {
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.page-header p,
+.eyebrow {
+  margin: 0 0 0.25rem;
+  color: #0f766e;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.page-header h1,
+.panel h2,
+.card strong {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.cards {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.two-col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.card,
+.panel,
+.form-panel,
+.empty-state {
+  border: 1px solid #d7e2e4;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 1rem;
+}
+
+.card {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.card span,
+.muted {
+  color: #64748b;
+}
+
+.positive {
+  color: #047857;
+  font-weight: 900;
+}
+
+.negative,
+.danger {
+  color: #b42318;
+}
+
+button,
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  border: 0;
+  border-radius: 8px;
+  background: #0f766e;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 800;
+  padding: 0 0.9rem;
+  text-decoration: none;
+}
+
+button.secondary,
+.button.secondary {
+  border: 1px solid #b9c9cd;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+button.ghost {
+  background: transparent;
+}
+
+button.danger {
+  border: 1px solid #fecaca;
+  background: #fff5f5;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(15, 118, 110, 0.32);
+  outline-offset: 2px;
+}
+
+.chart {
+  display: flex;
+  align-items: end;
+  gap: 0.75rem;
+  min-height: 13rem;
+}
+
+.bar {
+  display: grid;
+  gap: 0.4rem;
+  justify-items: center;
+  flex: 1;
+}
+
+.bar span:first-child {
+  width: 100%;
+  max-width: 2rem;
+  border-radius: 6px 6px 0 0;
+  background: #0f766e;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 44rem;
+}
+
+th,
+td {
+  border-bottom: 1px solid #e4ecee;
+  padding: 0.85rem;
+  text-align: left;
+}
+
+th {
+  color: #475569;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.field.full {
+  grid-column: 1 / -1;
+}
+
+label {
+  color: #1e293b;
+  font-weight: 800;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid #6b7c8c;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 0.75rem;
+}
+
+.field-error {
+  margin: 0;
+  color: #991b1b;
+  font-weight: 700;
+}
+
+.spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 4px solid #cbd5e1;
+  border-top-color: #0f766e;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.toast {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 10;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 1rem;
+}
+
+.toast.success {
+  background: #047857;
+}
+
+.toast.error {
+  background: #b42318;
+}
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 20;
+}
+
+.dialog {
+  width: min(100% - 2rem, 28rem);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 1.25rem;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 72rem) {
+  .app-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-summary {
+    justify-content: space-between;
+  }
+
+  .profile-summary div {
+    text-align: left;
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 42rem) {
+  .module-shell {
+    padding: 1rem;
+  }
+
+  .page-header,
+  .table-actions,
+  .dialog-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cards,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

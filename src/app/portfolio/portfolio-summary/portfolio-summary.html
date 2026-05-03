@@ -1,0 +1,19 @@
+<main class="module-shell">
+  <app-page-header title="Portfolio Summary" eyebrow="Portfolio" />
+  @if (vm$ | async; as vm) {
+    <section class="grid cards">
+      <article class="card"><span>Current Value</span><strong>{{ vm.summary.currentValue | currency: 'INR':'symbol':'1.0-0' }}</strong></article>
+      <article class="card"><span>Invested Value</span><strong>{{ vm.summary.investedValue | currency: 'INR':'symbol':'1.0-0' }}</strong></article>
+      <article class="card"><span>Returns</span><strong>{{ vm.summary.returns | currency: 'INR':'symbol':'1.0-0' }}</strong></article>
+      <article class="card"><span>Return %</span><strong>{{ vm.summary.returnPercent }}%</strong></article>
+    </section>
+    <section class="panel">
+      <h2>Returns</h2>
+      <div class="chart">
+        @for (point of vm.returns; track point.label) {
+          <div class="bar"><span [style.height.px]="point.value * 10"></span><small>{{ point.label }}</small></div>
+        }
+      </div>
+    </section>
+  }
+</main>

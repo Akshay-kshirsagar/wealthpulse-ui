@@ -1,0 +1,15 @@
+<main class="module-shell">
+  <app-page-header title="Billing" eyebrow="Revenue Operations">
+    <a class="button" routerLink="/billing/generate">Generate Invoice</a>
+  </app-page-header>
+
+  @if (summary$ | async; as summary) {
+    <section class="grid cards">
+      <article class="card"><span>Total Invoices</span><strong>{{ summary.totalInvoices }}</strong></article>
+      <article class="card"><span>Paid</span><strong>{{ summary.paid }}</strong></article>
+      <article class="card"><span>Pending</span><strong>{{ summary.pending }}</strong></article>
+      <article class="card"><span>Overdue</span><strong>{{ summary.overdue }}</strong></article>
+      <article class="card"><span>Monthly Revenue</span><strong>{{ summary.monthlyRevenue | currency: 'INR':'symbol':'1.0-0' }}</strong></article>
+    </section>
+  }
+</main>
