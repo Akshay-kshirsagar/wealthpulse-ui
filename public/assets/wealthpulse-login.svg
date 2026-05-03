@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 960" role="img" aria-label="Abstract financial chart background">
+  <rect width="1440" height="960" fill="#0b2430"/>
+  <path fill="#123b46" d="M0 596 105 548c105-48 315-144 525-134s420 126 630 114 315-152 420-222v654H0Z"/>
+  <path fill="#1f5b5d" d="M0 720h80c80 0 240 0 400-64s320-192 480-176 320 176 400 256l80 80v144H0Z"/>
+  <path fill="none" stroke="#8bd4c7" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" d="M132 664c120-132 230-188 330-168 98 20 140 106 236 100 138-10 168-194 308-212 86-12 170 48 254 178"/>
+  <g fill="#f8fafc" opacity=".88">
+    <circle cx="132" cy="664" r="16"/>
+    <circle cx="462" cy="496" r="16"/>
+    <circle cx="698" cy="596" r="16"/>
+    <circle cx="1006" cy="384" r="16"/>
+    <circle cx="1260" cy="562" r="16"/>
+  </g>
+</svg>

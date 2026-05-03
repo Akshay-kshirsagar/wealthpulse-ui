@@ -1,0 +1,37 @@
+<main class="module-shell">
+  <app-page-header title="Clients" eyebrow="Client Management">
+    <a class="button" routerLink="/clients/add">Add Client</a>
+  </app-page-header>
+
+  <section class="panel">
+    <div class="page-header">
+      <label class="field">
+        <span>Search clients</span>
+        <input type="search" [ngModel]="query()" (ngModelChange)="updateSearch($event)" placeholder="Name, PAN, email, mobile" />
+      </label>
+      <span class="muted">Page {{ page() }} of {{ totalPages() }}</span>
+    </div>
+
+    <app-data-table
+      [columns]="columns"
+      [rows]="pagedClients()"
+      [showActions]="true"
+      (view)="view($event)"
+      (edit)="edit($event)"
+      (remove)="requestDelete($event)"
+    />
+
+    <div class="dialog-actions">
+      <button type="button" class="secondary" (click)="previousPage()" [disabled]="page() === 1">Previous</button>
+      <button type="button" class="secondary" (click)="nextPage()" [disabled]="page() === totalPages()">Next</button>
+    </div>
+  </section>
+
+  <app-confirm-dialog
+    [open]="!!pendingDelete()"
+    title="Delete client"
+    message="This client will be removed from the local list."
+    (cancel)="pendingDelete.set(null)"
+    (confirm)="confirmDelete()"
+  />
+</main>

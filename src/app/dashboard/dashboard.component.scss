@@ -1,0 +1,30 @@
+.dashboard-charts {
+  margin-top: 1rem;
+}
+
+.quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.quick-links a {
+  border-radius: 8px;
+  background: #e7f6f3;
+  color: #0f766e;
+  font-weight: 800;
+  padding: 0.65rem 0.85rem;
+  text-decoration: none;
+}
+
+.stats-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+
+@media (max-width: 42rem) {
+  .stats-row {
+    grid-template-columns: 1fr;
+  }
+}
