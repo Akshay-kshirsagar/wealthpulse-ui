@@ -1,30 +1,31 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '../auth.service';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-register',
   imports: [ReactiveFormsModule, RouterLink],
-  templateUrl: './login.html',
-  styleUrl: './login.scss',
+  templateUrl: './register.html',
+  styleUrl: '../login/login.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Login {
+export class Register {
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
 
   protected readonly isSubmitting = signal(false);
   protected readonly submitted = signal(false);
   protected readonly serverError = signal('');
   protected readonly form = this.formBuilder.nonNullable.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]]
   });
+  protected readonly nameError = computed(() => this.getFieldError('name'));
   protected readonly emailError = computed(() => this.getFieldError('email'));
   protected readonly passwordError = computed(() => this.getFieldError('password'));
 
@@ -40,11 +41,11 @@ export class Login {
     this.isSubmitting.set(true);
 
     this.authService
-      .login(this.form.getRawValue())
+      .register(this.form.getRawValue())
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: () => {
-          void this.router.navigateByUrl(this.getReturnUrl());
+          void this.router.navigateByUrl('/dashboard');
         },
         error: (error: unknown) => {
           this.serverError.set(this.toErrorMessage(error));
@@ -52,7 +53,7 @@ export class Login {
       });
   }
 
-  private getFieldError(fieldName: 'email' | 'password'): string {
+  private getFieldError(fieldName: 'name' | 'email' | 'password'): string {
     const control = this.form.controls[fieldName];
 
     if (!control.invalid || (!control.touched && !this.submitted())) {
@@ -60,7 +61,7 @@ export class Login {
     }
 
     if (control.hasError('required')) {
-      return fieldName === 'email' ? 'Enter your email address.' : 'Enter your password.';
+      return this.requiredMessage(fieldName);
     }
 
     if (control.hasError('email')) {
@@ -68,37 +69,35 @@ export class Login {
     }
 
     if (control.hasError('minlength')) {
-      return 'Password must be at least 8 characters.';
+      return fieldName === 'name' ? 'Name must be at least 2 characters.' : 'Password must be at least 8 characters.';
     }
 
     return 'Check this field and try again.';
   }
 
-  private getReturnUrl(): string {
-    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-
-    if (!returnUrl || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
-      return '/dashboard';
+  private requiredMessage(fieldName: 'name' | 'email' | 'password'): string {
+    if (fieldName === 'name') {
+      return 'Enter your name.';
     }
 
-    return returnUrl;
+    return fieldName === 'email' ? 'Enter your email address.' : 'Enter your password.';
   }
 
   private toErrorMessage(error: unknown): string {
     if (error instanceof HttpErrorResponse) {
-      if (error.status === 401) {
-        return 'The email or password you entered is incorrect.';
+      if (error.status === 409) {
+        return 'An account with this email already exists.';
       }
 
       if (error.status === 0) {
-        return 'We could not reach the sign-in service. Check your connection and try again.';
+        return 'We could not reach the registration service. Check your connection and try again.';
       }
     }
 
-    if (error instanceof Error && error.message === 'INVALID_CREDENTIALS') {
-      return 'The email or password you entered is incorrect.';
+    if (error instanceof Error && error.message === 'EMAIL_EXISTS') {
+      return 'An account with this email already exists.';
     }
 
-    return 'Sign-in failed. Please try again.';
+    return 'Registration failed. Please try again.';
   }
 }

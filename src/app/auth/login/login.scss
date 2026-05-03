@@ -108,6 +108,17 @@ input[aria-invalid='true'] {
   font-weight: 700;
 }
 
+.auth-hint {
+  margin: 0;
+  border: 1px solid #b9c9cd;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;

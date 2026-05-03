@@ -3,9 +3,10 @@ import { inject } from '@angular/core';
 import { AuthService } from './auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
-  const token = inject(AuthService).getAccessToken();
+  const authService = inject(AuthService);
+  const token = authService.getAccessToken();
 
-  if (!token || request.url.includes('/api/auth/login')) {
+  if (!token || authService.isAuthEndpoint(request.url)) {
     return next(request);
   }
 
