@@ -19,6 +19,8 @@ export interface AuthSession {
   refreshToken: string | null;
   userEmail: string | null;
   userName: string | null;
+  roles: UserRole[];
+  expiresAt: number;
 }
 
 export interface LocalAuthUser {
@@ -26,4 +28,7 @@ export interface LocalAuthUser {
   name: string;
   email: string;
   password: string;
+  roles: UserRole[];
 }
+
+export type UserRole = 'Admin' | 'Advisor' | 'Viewer';

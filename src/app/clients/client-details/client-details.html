@@ -1,0 +1,17 @@
+<main class="module-shell">
+  @if (client$ | async; as client) {
+    <app-page-header [title]="client.name" eyebrow="Client Details">
+      <a class="button secondary" routerLink="/clients">Back</a>
+      <a class="button" [routerLink]="['/clients', client.id, 'edit']">Edit</a>
+    </app-page-header>
+
+    <section class="grid two-col">
+      <article class="card"><span>PAN</span><strong>{{ client.pan }}</strong></article>
+      <article class="card"><span>Email</span><strong>{{ client.email }}</strong></article>
+      <article class="card"><span>Mobile</span><strong>{{ client.mobile }}</strong></article>
+      <article class="card"><span>Risk Profile</span><strong>{{ client.riskProfile }}</strong></article>
+      <article class="card"><span>AUM</span><strong>{{ client.aum | currency: 'INR':'symbol':'1.0-0' }}</strong></article>
+      <article class="card"><span>Address</span><strong>{{ client.address }}</strong></article>
+    </section>
+  }
+</main>

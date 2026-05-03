@@ -1,0 +1,11 @@
+<main class="module-shell">
+  <app-page-header title="Invoices" eyebrow="Billing">
+    <a class="button" routerLink="/billing/generate">Generate Invoice</a>
+  </app-page-header>
+
+  @if (invoices$ | async; as invoices) {
+    <section class="panel">
+      <app-data-table [columns]="columns" [rows]="invoices" [showActions]="true" [canEdit]="false" [canDelete]="false" (view)="view($event)" />
+    </section>
+  }
+</main>

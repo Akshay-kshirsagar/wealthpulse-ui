@@ -1,0 +1,14 @@
+<main class="module-shell">
+  <app-page-header title="Generate Invoice" eyebrow="Billing">
+    <a class="button secondary" routerLink="/billing/invoices">Back</a>
+  </app-page-header>
+  <form class="form-panel form-grid" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="field">
+      <label for="clientId">Client ID</label>
+      <input id="clientId" formControlName="clientId" placeholder="c-1001" />
+    </div>
+    <div class="field full">
+      <button type="submit">Generate</button>
+    </div>
+  </form>
+</main>

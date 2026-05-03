@@ -1,29 +1,46 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable, delay, of, switchMap, tap, throwError } from 'rxjs';
 import { authConfig } from './auth.config';
-import { AuthResponse, AuthSession, LocalAuthUser, LoginCredentials, RegisterCredentials } from './auth.models';
+import { AuthResponse, AuthSession, LocalAuthUser, LoginCredentials, RegisterCredentials, UserRole } from './auth.models';
 
 const ACCESS_TOKEN_KEY = 'wealthpulse.accessToken';
 const REFRESH_TOKEN_KEY = 'wealthpulse.refreshToken';
 const USER_EMAIL_KEY = 'wealthpulse.userEmail';
 const USER_NAME_KEY = 'wealthpulse.userName';
+const USER_ROLES_KEY = 'wealthpulse.userRoles';
+const EXPIRES_AT_KEY = 'wealthpulse.expiresAt';
 const LOCAL_USERS_KEY = 'wealthpulse.localUsers';
+const DEMO_USER: LocalAuthUser = {
+  id: 'demo-user',
+  name: 'Demo Investor',
+  email: 'demo@wealthpulse.test',
+  password: 'Password123',
+  roles: ['Admin', 'Advisor', 'Viewer']
+};
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly sessionState = signal<AuthSession | null>(this.readSession());
   private readonly loginUrl = `${authConfig.identityApiBaseUrl}${authConfig.endpoints.login}`;
   private readonly registerUrl = `${authConfig.identityApiBaseUrl}${authConfig.endpoints.register}`;
+  private readonly refreshUrl = `${authConfig.identityApiBaseUrl}${authConfig.endpoints.refresh}`;
+  private logoutTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly session = this.sessionState.asReadonly();
   readonly isAuthenticated = computed(() => Boolean(this.sessionState()?.accessToken));
+
+  constructor() {
+    this.scheduleSessionExpiry();
+  }
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     const request = authConfig.useLocalAuth
@@ -41,8 +58,22 @@ export class AuthService {
     return request.pipe(tap((response) => this.saveSession(response)));
   }
 
+  refreshAccessToken(): Observable<AuthResponse> {
+    const refreshToken = this.sessionState()?.refreshToken;
+
+    if (!refreshToken) {
+      return throwError(() => new Error('NO_REFRESH_TOKEN'));
+    }
+
+    const request = authConfig.useLocalAuth
+      ? of(this.createLocalRefreshResponse())
+      : this.http.post<AuthResponse>(this.refreshUrl, { refreshToken });
+
+    return request.pipe(tap((response) => this.saveSession(response)));
+  }
+
   isAuthEndpoint(url: string): boolean {
-    return url.includes(this.loginUrl) || url.includes(this.registerUrl);
+    return url.includes(this.loginUrl) || url.includes(this.registerUrl) || url.includes(this.refreshUrl);
   }
 
   logout(): void {
@@ -56,23 +87,36 @@ export class AuthService {
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_EMAIL_KEY);
     localStorage.removeItem(USER_NAME_KEY);
+    localStorage.removeItem(USER_ROLES_KEY);
+    localStorage.removeItem(EXPIRES_AT_KEY);
+    this.clearLogoutTimer();
   }
 
   getAccessToken(): string | null {
     return this.sessionState()?.accessToken ?? null;
   }
 
+  hasRole(roles: UserRole[]): boolean {
+    const sessionRoles = this.sessionState()?.roles ?? [];
+    return roles.length === 0 || roles.some((role) => sessionRoles.includes(role));
+  }
+
   private saveSession(response: AuthResponse): void {
     const userEmail = this.readTokenClaim(response.accessToken, 'email');
     const userName = this.readTokenClaim(response.accessToken, 'name');
+    const roles = this.readTokenRoles(response.accessToken);
+    const expiresAt = Date.now() + authConfig.sessionTimeoutMinutes * 60 * 1000;
     const session: AuthSession = {
       accessToken: response.accessToken,
       refreshToken: response.refreshToken ?? null,
       userEmail,
-      userName
+      userName,
+      roles,
+      expiresAt
     };
 
     this.sessionState.set(session);
+    this.scheduleSessionExpiry();
 
     if (!this.isBrowser) {
       return;
@@ -81,6 +125,8 @@ export class AuthService {
     localStorage.setItem(ACCESS_TOKEN_KEY, session.accessToken);
     this.setOptionalStorageValue(USER_EMAIL_KEY, session.userEmail);
     this.setOptionalStorageValue(USER_NAME_KEY, session.userName);
+    localStorage.setItem(USER_ROLES_KEY, JSON.stringify(session.roles));
+    localStorage.setItem(EXPIRES_AT_KEY, String(session.expiresAt));
 
     if (session.refreshToken) {
       localStorage.setItem(REFRESH_TOKEN_KEY, session.refreshToken);
@@ -95,8 +141,10 @@ export class AuthService {
     }
 
     const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+    const expiresAt = Number(localStorage.getItem(EXPIRES_AT_KEY) ?? 0);
 
-    if (!accessToken) {
+    if (!accessToken || !expiresAt || expiresAt <= Date.now()) {
+      this.clearStoredSession();
       return null;
     }
 
@@ -104,7 +152,9 @@ export class AuthService {
       accessToken,
       refreshToken: localStorage.getItem(REFRESH_TOKEN_KEY),
       userEmail: localStorage.getItem(USER_EMAIL_KEY),
-      userName: localStorage.getItem(USER_NAME_KEY)
+      userName: localStorage.getItem(USER_NAME_KEY),
+      roles: this.readStoredRoles(),
+      expiresAt
     };
   }
 
@@ -140,7 +190,8 @@ export class AuthService {
           id: this.createId(),
           name: credentials.name.trim(),
           email,
-          password: credentials.password
+          password: credentials.password,
+          roles: ['Advisor']
         };
 
         this.writeLocalUsers([...users, user]);
@@ -158,14 +209,7 @@ export class AuthService {
     const storedUsers = localStorage.getItem(LOCAL_USERS_KEY);
 
     if (!storedUsers) {
-      return [
-        {
-          id: 'demo-user',
-          name: 'Demo Investor',
-          email: 'demo@wealthpulse.test',
-          password: 'Password123'
-        }
-      ];
+      return [DEMO_USER];
     }
 
     try {
@@ -175,7 +219,12 @@ export class AuthService {
         return [];
       }
 
-      return parsedUsers.filter((user): user is LocalAuthUser => this.isLocalAuthUser(user));
+      const storedLocalUsers = parsedUsers.filter((user) => this.isLocalAuthUser(user)).map((user) => ({
+        ...user,
+        roles: this.normalizeRoles(user.roles)
+      }));
+
+      return storedLocalUsers.some((user) => user.email.toLowerCase() === DEMO_USER.email) ? storedLocalUsers : [DEMO_USER, ...storedLocalUsers];
     } catch {
       return [];
     }
@@ -198,8 +247,18 @@ export class AuthService {
       typeof candidate['id'] === 'string' &&
       typeof candidate['name'] === 'string' &&
       typeof candidate['email'] === 'string' &&
-      typeof candidate['password'] === 'string'
+      typeof candidate['password'] === 'string' &&
+      (candidate['roles'] === undefined || Array.isArray(candidate['roles']))
     );
+  }
+
+  private normalizeRoles(roles: unknown): UserRole[] {
+    if (!Array.isArray(roles)) {
+      return ['Advisor'];
+    }
+
+    const validRoles = roles.filter((role): role is UserRole => role === 'Admin' || role === 'Advisor' || role === 'Viewer');
+    return validRoles.length > 0 ? validRoles : ['Advisor'];
   }
 
   private createLocalAuthResponse(user: LocalAuthUser): AuthResponse {
@@ -215,6 +274,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       name: user.name,
+      roles: user.roles.join(','),
       iat: Math.floor(Date.now() / 1000)
     });
 
@@ -232,6 +292,18 @@ export class AuthService {
   }
 
   private readTokenClaim(token: string, claim: 'email' | 'name'): string | null {
+    const value = this.readTokenPayload(token)?.[claim];
+    return typeof value === 'string' ? value : null;
+  }
+
+  private readTokenRoles(token: string): UserRole[] {
+    const roles = this.readTokenPayload(token)?.['roles'];
+    const values = Array.isArray(roles) ? roles : typeof roles === 'string' ? roles.split(',') : [];
+
+    return values.filter((role): role is UserRole => role === 'Admin' || role === 'Advisor' || role === 'Viewer');
+  }
+
+  private readTokenPayload(token: string): Record<string, unknown> | null {
     if (!this.isBrowser) {
       return null;
     }
@@ -245,16 +317,22 @@ export class AuthService {
     try {
       const paddedPayload = payload.padEnd(payload.length + ((4 - (payload.length % 4)) % 4), '=');
       const parsedPayload: unknown = JSON.parse(atob(paddedPayload.replaceAll('-', '+').replaceAll('_', '/')));
-
-      if (!parsedPayload || typeof parsedPayload !== 'object') {
-        return null;
-      }
-
-      const value = (parsedPayload as Record<string, unknown>)[claim];
-
-      return typeof value === 'string' ? value : null;
+      return parsedPayload && typeof parsedPayload === 'object' ? (parsedPayload as Record<string, unknown>) : null;
     } catch {
       return null;
+    }
+  }
+
+  private readStoredRoles(): UserRole[] {
+    if (!this.isBrowser) {
+      return [];
+    }
+
+    try {
+      const roles: unknown = JSON.parse(localStorage.getItem(USER_ROLES_KEY) ?? '[]');
+      return Array.isArray(roles) ? roles.filter((role): role is UserRole => role === 'Admin' || role === 'Advisor' || role === 'Viewer') : [];
+    } catch {
+      return [];
     }
   }
 
@@ -266,11 +344,73 @@ export class AuthService {
     }
   }
 
+  private scheduleSessionExpiry(): void {
+    this.clearLogoutTimer();
+
+    if (!this.isBrowser) {
+      return;
+    }
+
+    const expiresAt = this.sessionState()?.expiresAt;
+
+    if (!expiresAt) {
+      return;
+    }
+
+    const timeout = Math.max(0, expiresAt - Date.now());
+
+    this.logoutTimer = setTimeout(() => {
+      this.logout();
+      void this.router.navigate(['/login']);
+    }, timeout);
+  }
+
+  private clearLogoutTimer(): void {
+    if (this.logoutTimer) {
+      clearTimeout(this.logoutTimer);
+      this.logoutTimer = null;
+    }
+  }
+
+  private clearStoredSession(): void {
+    if (!this.isBrowser) {
+      return;
+    }
+
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(USER_EMAIL_KEY);
+    localStorage.removeItem(USER_NAME_KEY);
+    localStorage.removeItem(USER_ROLES_KEY);
+    localStorage.removeItem(EXPIRES_AT_KEY);
+  }
+
   private createId(): string {
     if (this.isBrowser && crypto.randomUUID) {
       return crypto.randomUUID();
     }
 
     return `local-${Date.now()}`;
+  }
+
+  private createLocalRefreshResponse(): AuthResponse {
+    const session = this.sessionState();
+
+    if (!session) {
+      throw new Error('NO_SESSION');
+    }
+
+    const user: LocalAuthUser = {
+      id: 'local-session',
+      name: session.userName ?? 'Local User',
+      email: session.userEmail ?? 'local@wealthpulse.test',
+      password: '',
+      roles: session.roles
+    };
+
+    return {
+      accessToken: this.createLocalJwt(user),
+      refreshToken: session.refreshToken ?? `local-refresh-${Date.now()}`
+    };
   }
 }

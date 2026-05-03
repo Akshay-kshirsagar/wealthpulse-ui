@@ -1,0 +1,76 @@
+<main class="module-shell">
+  <app-page-header title="Dashboard" eyebrow="WealthPulse">
+    <a class="button secondary" routerLink="/clients">View clients</a>
+  </app-page-header>
+
+  @if (vm$ | async; as vm) {
+    <nav class="panel quick-links" aria-label="WealthPulse modules">
+      <a routerLink="/clients">Clients</a>
+      <a routerLink="/billing">Billing</a>
+      <a routerLink="/market/watch">Market</a>
+      <a routerLink="/portfolio/summary">Portfolio</a>
+      <a routerLink="/settings/profile">Settings</a>
+    </nav>
+
+    <section class="grid cards" aria-label="Dashboard summary">
+      <article class="card">
+        <span>Total Clients</span>
+        <strong>{{ vm.summary.totalClients | number }}</strong>
+      </article>
+      <article class="card">
+        <span>Total AUM</span>
+        <strong>{{ vm.summary.totalAum | currency: 'INR':'symbol':'1.0-0' }}</strong>
+      </article>
+      <article class="card">
+        <span>Monthly Revenue</span>
+        <strong>{{ vm.summary.monthlyRevenue | currency: 'INR':'symbol':'1.0-0' }}</strong>
+      </article>
+      <article class="card">
+        <span>Pending Bills</span>
+        <strong>{{ vm.summary.pendingBills }}</strong>
+      </article>
+      <article class="card">
+        <span>Today P&amp;L</span>
+        <strong [class.positive]="vm.summary.todayPnl >= 0" [class.negative]="vm.summary.todayPnl < 0">
+          {{ vm.summary.todayPnl | currency: 'INR':'symbol':'1.0-0' }}
+        </strong>
+      </article>
+    </section>
+
+    <section class="grid two-col dashboard-charts">
+      <article class="panel">
+        <h2>Monthly Revenue</h2>
+        <div class="chart" role="img" aria-label="Monthly revenue chart">
+          @for (point of vm.revenue; track point.label) {
+            <div class="bar">
+              <span [style.height.px]="point.value / 3"></span>
+              <small>{{ point.label }}</small>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="panel">
+        <h2>Client Growth</h2>
+        <div class="chart" role="img" aria-label="Client growth chart">
+          @for (point of vm.growth; track point.label) {
+            <div class="bar">
+              <span [style.height.px]="point.value / 3"></span>
+              <small>{{ point.label }}</small>
+            </div>
+          }
+        </div>
+      </article>
+    </section>
+
+    <section class="grid cards stats-row">
+      @for (stat of vm.stats; track stat.label) {
+        <article class="card">
+          <span>{{ stat.label }}</span>
+          <strong>{{ stat.value }}</strong>
+          <small class="positive">{{ stat.trend }}</small>
+        </article>
+      }
+    </section>
+  }
+</main>

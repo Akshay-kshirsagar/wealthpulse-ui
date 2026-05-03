@@ -1,0 +1,15 @@
+<main class="module-shell">
+  @if (invoice$ | async; as invoice) {
+    <app-page-header [title]="invoice.id" eyebrow="Invoice Details">
+      <a class="button secondary" routerLink="/billing/invoices">Back</a>
+      <button type="button" (click)="markPaid(invoice.id)">Mark Paid</button>
+      <button type="button" class="secondary" (click)="download(invoice.id)">Download PDF</button>
+    </app-page-header>
+    <section class="grid two-col">
+      <article class="card"><span>Client</span><strong>{{ invoice.clientName }}</strong></article>
+      <article class="card"><span>Amount</span><strong>{{ invoice.amount | currency: 'INR':'symbol':'1.0-0' }}</strong></article>
+      <article class="card"><span>Due Date</span><strong>{{ invoice.dueDate }}</strong></article>
+      <article class="card"><span>Status</span><strong>{{ invoice.status }}</strong></article>
+    </section>
+  }
+</main>

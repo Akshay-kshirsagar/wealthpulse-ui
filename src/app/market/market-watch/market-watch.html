@@ -1,0 +1,22 @@
+<main class="module-shell">
+  <app-page-header title="Market Watch" eyebrow="Market" />
+  @if (vm$ | async; as vm) {
+    <section class="grid two-col">
+      <article class="panel">
+        <h2>Indices</h2>
+        @for (index of vm.indices; track index.name) {
+          <article class="card"><span>{{ index.name }}</span><strong>{{ index.value | number: '1.1-1' }}</strong><small class="positive">{{ index.change }}%</small></article>
+        }
+      </article>
+      <article class="panel">
+        <h2>Movers</h2>
+        @for (mover of vm.gainers; track mover.symbol) {
+          <p><strong>{{ mover.symbol }}</strong> <span class="positive">+{{ mover.change }}%</span></p>
+        }
+        @for (mover of vm.losers; track mover.symbol) {
+          <p><strong>{{ mover.symbol }}</strong> <span class="negative">{{ mover.change }}%</span></p>
+        }
+      </article>
+    </section>
+  }
+</main>
