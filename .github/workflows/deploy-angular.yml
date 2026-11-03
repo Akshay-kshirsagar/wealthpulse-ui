@@ -1,4 +1,3 @@
-
 name: Deploy Angular Application
 
 on:
@@ -34,24 +33,17 @@ jobs:
         run: npm ci
 
       - name: Build Angular Application
-        run: |
-          npx ng build --configuration production \
-          --base-href "/${{ github.event.repository.name }}/"
+        run: npx ng build --configuration production --base-href "/wealthpulse-ui/"
 
-      - name: Find Angular Build Output
-        id: output
+      - name: Verify GitHub Pages output
         run: |
-          INDEX_FILE=$(find dist -type f -name index.html | head -n 1)
-          if [ -z "$INDEX_FILE" ]; then
-            echo "Angular build output not found"
-            exit 1
-          fi
-          echo "path=$(dirname "$INDEX_FILE")" >> "$GITHUB_OUTPUT"
+          test -f dist/wealthpulse-ui/browser/index.html
+          grep -F '<base href="/wealthpulse-ui/">' dist/wealthpulse-ui/browser/index.html
 
       - name: Upload Build Artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: ${{ steps.output.outputs.path }}
+          path: dist/wealthpulse-ui/browser
 
   deploy:
     needs: build
