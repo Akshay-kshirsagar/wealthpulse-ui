@@ -4,6 +4,12 @@
   <meta charset="utf-8">
   <title>WealthpulseUi</title>
   <base href="/">
+  <script>
+    const redirectUrl = new URLSearchParams(location.search).get('__ghp_redirect');
+    if (redirectUrl?.startsWith('/wealthpulse-ui/')) {
+      history.replaceState(null, '', redirectUrl);
+    }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>

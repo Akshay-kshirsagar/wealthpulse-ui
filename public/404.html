@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wealthpulse</title>
+</head>
+<body>
+  <script>
+    const requestedUrl = `${location.pathname}${location.search}${location.hash}`;
+    const basePath = '/wealthpulse-ui/';
+    location.replace(`${basePath}?__ghp_redirect=${encodeURIComponent(requestedUrl)}`);
+  </script>
+</body>
+</html>
