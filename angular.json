@@ -43,6 +43,7 @@
           },
           "configurations": {
             "production": {
+              "baseHref": "/wealthpulse-ui/",
               "budgets": [
                 {
                   "type": "initial",

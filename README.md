@@ -36,6 +36,10 @@ ng build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
+## GitHub Pages deployment
+
+Build with `ng build --configuration production` and publish the contents of `dist/wealthpulse-ui/browser`. The production build uses the `/wealthpulse-ui/` base path and includes `404.html` so GitHub Pages can load client-side routes on direct navigation.
+
 ## Running unit tests
 
 To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
