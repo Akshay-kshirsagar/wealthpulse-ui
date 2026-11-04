@@ -38,7 +38,11 @@ jobs:
       - name: Verify GitHub Pages output
         run: |
           test -f dist/wealthpulse-ui/browser/index.html
-          grep -F '<base href="/wealthpulse-ui/">' dist/wealthpulse-ui/browser/index.html
+
+          echo "Generated base href:"
+          grep -o '<base href="[^"]*">' dist/wealthpulse-ui/browser/index.html
+
+          grep -q '<base href="/wealthpulse-ui/">' dist/wealthpulse-ui/browser/index.html
 
       - name: Upload Build Artifact
         uses: actions/upload-pages-artifact@v4
