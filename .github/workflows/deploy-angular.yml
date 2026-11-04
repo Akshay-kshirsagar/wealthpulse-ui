@@ -35,14 +35,30 @@ jobs:
       - name: Build Angular Application
         run: npx ng build --configuration production --base-href "/wealthpulse-ui/"
 
+      - name: Ensure GitHub Pages base href
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = 'dist/wealthpulse-ui/browser/index.html';
+          let html = fs.readFileSync(path, 'utf8');
+          const baseTag = '<base href="/wealthpulse-ui/">';
+
+          if (/<base\b[^>]*>/i.test(html)) {
+            html = html.replace(/<base\b[^>]*>/i, baseTag);
+          } else if (/<head\b[^>]*>/i.test(html)) {
+            html = html.replace(/<head\b[^>]*>/i, (head) => `${head}\n  ${baseTag}`);
+          } else {
+            throw new Error(`No <head> element found in ${path}`);
+          }
+
+          fs.writeFileSync(path, html);
+          NODE
+
       - name: Verify GitHub Pages output
         run: |
           test -f dist/wealthpulse-ui/browser/index.html
-
-          echo "Generated base href:"
-          grep -o '<base href="[^"]*">' dist/wealthpulse-ui/browser/index.html
-
-          grep -q '<base href="/wealthpulse-ui/">' dist/wealthpulse-ui/browser/index.html
+          grep -Fq '<base href="/wealthpulse-ui/">' dist/wealthpulse-ui/browser/index.html
+          echo 'Verified base href: /wealthpulse-ui/'
 
       - name: Upload Build Artifact
         uses: actions/upload-pages-artifact@v4
