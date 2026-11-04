@@ -3,38 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Wealthpulse</title>
+  <title>Redirecting to WealthPulse…</title>
+  <script>
+    (function () {
+      var basePath = '/wealthpulse-ui/';
+      var requestedUrl = window.location.pathname + window.location.search + window.location.hash;
+      var appUrl = basePath + '?__ghp_redirect=' + encodeURIComponent(requestedUrl);
+      window.location.replace(appUrl);
+    })();
+  </script>
 </head>
 <body>
-  <script>
-    const requestedUrl = `${location.pathname}${location.search}${location.hash}`;
-    const basePath = '/wealthpulse-ui/';
-    location.replace(`${basePath}?__ghp_redirect=${encodeURIComponent(requestedUrl)}`);
-  </script>
+  <p>Redirecting to <a href="/wealthpulse-ui/">WealthPulse</a>…</p>
 </body>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Redirecting…</title>
-    <script>
-      (function () {
-        var appBase = '/wealthpulse-ui';
-        var path = window.location.pathname;
-        var route = path.indexOf(appBase) === 0
-          ? path.slice(appBase.length)
-          : path;
-
-        if (!route || route.charAt(0) !== '/') {
-          route = '/' + route;
-        }
-
-        window.location.replace(
-          appBase + '/#' + route + window.location.search + window.location.hash
-        );
-      })();
-    </script>
-  </head>
-  <body>
-    <p>Page not found. <a href="/wealthpulse-ui/">Return to WealthPulse</a>.</p>
-  </body>
 </html>
